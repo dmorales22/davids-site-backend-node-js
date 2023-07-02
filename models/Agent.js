@@ -16,6 +16,10 @@ const AgentSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+    user_type: {
+      type: String,
+      default: "user", //user, system
+    },
     password: String,
     token: String,
   },

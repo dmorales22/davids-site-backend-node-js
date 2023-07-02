@@ -2,6 +2,8 @@ const Agent = require("../models/Agent");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+dotenv.config({ path: "./.env" });
 
 /**
  * This function is to create an agent in the database.
@@ -15,7 +17,9 @@ exports.createAgent = async (req, res) => {
     const { first_name, last_name, email, password } = req.body;
 
     if (!(email && password && first_name && last_name)) {
-      res.status(400).send({ result: false, msg: "All input is required." }); // A controller method to create an Agent in the database. Creates a token for this user.
+      return res
+        .status(400)
+        .send({ result: false, msg: "All input is required." }); // A controller method to create an Agent in the database. Creates a token for this user.
     }
 
     const existing_agent = await Agent.findOne({ email: email });
@@ -82,7 +86,9 @@ exports.signInAgent = async (req, res) => {
     const password = req.body.password;
 
     if (!(email && password)) {
-      res.status(400).send({ result: false, msg: "All input is required" });
+      return res
+        .status(400)
+        .send({ result: false, msg: "All input is required" });
     }
 
     email = email.toLowerCase();

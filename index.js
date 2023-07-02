@@ -29,7 +29,9 @@ const DB =
  */
 const DB = "mongodb://127.0.0.1/testbackend"; //Comment this line if you're not using local server
 const contactRoute = require("./routes/contactRoute");
+const contactMessagePublicRoute = require("./routes/contactMessagePublicRoutes");
 const agentRoute = require("./routes/agentRoute");
+const openRoute = require("./routes/openRoutes");
 const signInRoute = require("./routes/signInRoute");
 
 const oneDay = 1000 * 60 * 60 * 24;
@@ -113,7 +115,8 @@ app.use(upload.any());
 app.use(express.static("public"));
 
 //Non-protected routes. Should be use for public/unauthenticated routes
-app.use(signInRoute);
+//app.use(signInRoute);
+app.use(contactMessagePublicRoute);
 
 const rateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -122,12 +125,12 @@ const rateLimiter = rateLimit({
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 app.use(rateLimiter);
-//app.use("", openRoute);
+app.use("", openRoute);
 app.use(auth); //Applies middleware to the routes below.
 
 //Protected routes that require a token to access them. See middleware/auth.js for more details
-app.use("/api", agentRoute);
-app.use("/api", contactRoute);
+app.use("/", agentRoute);
+//app.use("/", contactRoute);
 
 app.use(express.static(__dirname + "/static", { dotfiles: "allow" }));
 
