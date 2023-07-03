@@ -4,7 +4,7 @@ const app = require("./index");
 dotenv.config({ path: "./.env" });
 // Uncomment to enable auth creds to DB
 const DB =
-  "mongodb+srv://" +
+  "mongodb://" +
   process.env.MONGODB_USER +
   ":" +
   process.env.DB_PASSWORD +
