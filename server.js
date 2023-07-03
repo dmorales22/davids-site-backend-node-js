@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const app = require("./index");
 dotenv.config({ path: "./.env" });
-/* Uncomment to enable auth creds to DB
+// Uncomment to enable auth creds to DB
 const DB =
   "mongodb+srv://" +
   process.env.MONGODB_USER +
@@ -13,8 +13,8 @@ const DB =
   "/" +
   process.env.MONGODB_NAME +
   "?retryWrites=true&w=majority";
-*/
-const DB = "mongodb://127.0.0.1/testbackend"; //Comment this line if you're not using local server
+
+//const DB = "mongodb://127.0.0.1/testbackend"; //Comment this line if you're not using local server
 
 // Connect to MONGODB server.
 mongoose.connect(

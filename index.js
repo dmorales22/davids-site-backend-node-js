@@ -14,7 +14,7 @@ const multer = require("multer");
 const upload = multer({ limits: { fieldSize: 25 * 1024 * 1024 } });
 const dotenv = require("dotenv");
 dotenv.config({ path: "./.env" });
-/* Uncomment to enable auth creds to DB
+// Uncomment to enable auth creds to DB
 const DB =
   "mongodb+srv://" +
   process.env.MONGODB_USER +
@@ -26,8 +26,7 @@ const DB =
   process.env.MONGODB_NAME +
   "?retryWrites=true&w=majority"; //Creates URL string to access the MongoDB server
 
- */
-const DB = "mongodb://127.0.0.1/testbackend"; //Comment this line if you're not using local server
+//const DB = "mongodb://127.0.0.1/testbackend"; //Comment this line if you're not using local server
 const contactRoute = require("./routes/contactRoute");
 const contactMessagePublicRoute = require("./routes/contactMessagePublicRoutes");
 const agentRoute = require("./routes/agentRoute");
