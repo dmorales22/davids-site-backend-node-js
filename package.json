@@ -1,6 +1,6 @@
 {
-  "name": "nodejs-template",
-  "version": "1.0.0",
+  "name": "davids-site-backend",
+  "version": "0.2.0",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.4",

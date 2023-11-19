@@ -1,6 +1,11 @@
-# Node.js Template Backend
+# David's Site Backend
 
-This is a template backend. This is built with Node.js using Express routes with JWT authentication and Express sessions.
+This is a backend for my own personal website. Some features it has is a functional contact message box with a email sender feature, a page interaction tracker/counter. 
+
+New features planned are:
+- Admin login
+- CMS 
+- Blog
 
 ## Install
 
@@ -141,6 +146,4 @@ And of course, there's a sample .env file is included in this repo.
 
 Here are the list of people have contributed to this repo:
 
-- David Morales (david@nop-softworks.com)
-
-## Copyright
+- David Morales (dmoral1414@gmail.com)

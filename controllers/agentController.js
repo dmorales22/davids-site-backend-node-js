@@ -73,7 +73,7 @@ exports.createAgent = async (req, res) => {
 };
 
 /**
- * This function is to signin  an Agent in the database.
+ * This function is to sign in  an Agent in the database.
  * Creates a token cookie for this user to use the system and routes.
  * @param req
  * @param res
@@ -92,8 +92,7 @@ exports.signInAgent = async (req, res) => {
     }
 
     email = email.toLowerCase();
-
-    const agent = await Agent.findOne({ email }).select({ password: 0 });
+    const agent = await Agent.findOne({ email });
 
     if (!agent) {
       return res
@@ -190,7 +189,7 @@ exports.getAgentById = async (req, res) => {
   try {
     const agent_id = req.body.agent_id;
     const filter = {
-      _id: mongoose.Types.ObjectId(agent),
+      _id: mongoose.Types.ObjectId(agent_id),
     };
     const agent = await Agent.findById(filter);
 
@@ -199,31 +198,6 @@ exports.getAgentById = async (req, res) => {
     }
 
     return res.send(agent);
-  } catch (err) {
-    console.log(err);
-    return res
-      .status(500)
-      .send({ result: false, msg: "There was a server error." });
-  }
-};
-
-/**
- * This function is used to get all agents from the database.
- * @param req
- * @param res
- * @returns {Promise<*>}
- */
-exports.getAllAgents = async (req, res) => {
-  try {
-    Agent.find({}, (err, agent) => {
-      if (err) {
-        console.log(err);
-        return res
-          .status(500)
-          .send({ result: false, msg: "There was a server error." });
-      }
-      return res.send(agent);
-    });
   } catch (err) {
     console.log(err);
     return res
@@ -250,32 +224,20 @@ exports.updateAgent = async (req, res) => {
     });
   }
   try {
-    const agent_id = mongoose.Types.ObjectId(req.body.agent_id);
+    const agent_id = new mongoose.Types.ObjectId(req.body.agent_id);
     const filter = {
       _id: agent_id,
     };
     const agent = await Agent.findOne(filter);
 
     if (!agent) {
-      return res.status(404).send({ result: false, msg: "Contact not found." });
+      return res.status(404).send({ result: false, msg: "Agent not found." });
     }
 
-    const update_object = req.body;
-    Agent.findByIdAndUpdate(
-      req.body.agent_id,
-      update_object,
-      { new: true },
-      (err, agent) => {
-        if (err) {
-          console.log(err);
-          res.status(500).send({
-            result: false,
-            msg: "There was a server error.",
-          });
-        }
-        return res.send({ result: true, msg: "Agent successfully updated!" });
-      }
-    );
+    const update_object = req.body.update_obj;
+    await Agent.updateOne(filter, update_object, { new: true });
+
+    return res.send({ result: true, msg: "Agent successfully updated!" });
   } catch (err) {
     console.log(err);
     res.status(500).send({
@@ -292,31 +254,14 @@ exports.updateAgent = async (req, res) => {
  * @returns {Promise<*>}
  * @author David Morales
  */
-exports.removeAgent = async (req, res) => {
-  if (
-    !req.body.agent_id ||
-    !mongoose.isObjectIdOrHexString(req.body.agent_id)
-  ) {
-    return res.status(400).send({
-      result: false,
-      msg: "Error. Something is wrong with this request.",
-    });
-  }
-
+exports.deleteAgent = async (req, res) => {
   try {
-    const agent_id = mongoose.Types.ObjectId(req.body.agent_id);
+    const agent_id = new mongoose.Types.ObjectId(req.body.agent_id);
+    await Agent.deleteOne({ _id: agent_id });
 
-    Agent.findOneAndDelete({ _id: agent_id }, (err, agent) => {
-      if (err) {
-        console.log(err);
-        return res
-          .status(500)
-          .send({ result: false, msg: "There was a server error." });
-      }
-      return res.send({
-        result: true,
-        msg: "Agent has been deleted.",
-      });
+    return res.send({
+      result: true,
+      msg: "Agent has been deleted.",
     });
   } catch (err) {
     console.log(err);

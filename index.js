@@ -14,8 +14,7 @@ const multer = require("multer");
 const upload = multer({ limits: { fieldSize: 25 * 1024 * 1024 } });
 const dotenv = require("dotenv");
 dotenv.config({ path: "./.env" });
-// Uncomment to enable auth creds to DB
-const DB =
+let DB =
   "mongodb://" +
   process.env.MONGODB_USER +
   ":" +
@@ -25,13 +24,14 @@ const DB =
   "/" +
   process.env.MONGODB_NAME +
   "?retryWrites=true&w=majority"; //Creates URL string to access the MongoDB server
-
-//const DB = "mongodb://127.0.0.1/testbackend"; //Comment this line if you're not using local server
-const contactRoute = require("./routes/contactRoute");
+if (process.env.TEST_DB) {
+  DB = "mongodb://127.0.0.1/testbackend"; //Comment this line if you're not using local server
+}
 const contactMessagePublicRoute = require("./routes/contactMessagePublicRoutes");
 const agentRoute = require("./routes/agentRoute");
 const openRoute = require("./routes/openRoutes");
 const signInRoute = require("./routes/signInRoute");
+const mongoose = require("mongoose");
 
 const oneDay = 1000 * 60 * 60 * 24;
 app.use(cookieParser());
@@ -67,7 +67,6 @@ if (process.env.DEPLOYMENT === "1") {
     session({
       secret: process.env.COOKIE_SECRET,
       resave: false,
-
       saveUninitialized: true,
       store: new MongoStore({
         mongoUrl: DB,
@@ -103,7 +102,7 @@ app.use(
 );
 
 //For parsing JSON data from the POST requests
-app.use(bodyparser.json({ limit: "512mb" }));
+app.use(bodyparser.json({ limit: "64mb" }));
 
 //For urlencoded and form data
 app.use(bodyparser.urlencoded());
@@ -119,7 +118,7 @@ app.use(contactMessagePublicRoute);
 
 const rateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10000, // Limit each IP to 500 requests per `window` (here, per 15 minutes)
+  max: 1000, // Limit each IP to 1000 requests per `window` (here, per 15 minutes)
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
@@ -129,7 +128,6 @@ app.use(auth); //Applies middleware to the routes below.
 
 //Protected routes that require a token to access them. See middleware/auth.js for more details
 app.use("/", agentRoute);
-//app.use("/", contactRoute);
 
 app.use(express.static(__dirname + "/static", { dotfiles: "allow" }));
 
@@ -137,8 +135,31 @@ app.get("/", (req, res) => {
   res.sendFile("index.html", { root: __dirname });
 });
 
+// Connect to MONGODB server.
+mongoose.connect(
+  DB,
+  {
+    useNewURLParser: true,
+    useUnifiedTopology: true,
+  },
+  (err) => {
+    if (err) {
+      return console.error(err);
+    }
+    console.log("Database connection successful!");
+  }
+);
+
+// Close database connection when the app is terminated.
+process.on("SIGINT", function () {
+  mongoose.connection.close(function () {
+    console.log("Mongoose disconnected on app termination");
+    process.exit(0);
+  });
+});
+
 // ENABLES SSL BUT REQUIRES ADMIN/ROOT PRIVILEGES. ONLY USE FOR DEPLOYMENT PURPOSES
-if (process.env.DEPLOYMENT === "1") {
+if (process.env.STANDALONE_HTTPS === "1") {
   https
     .createServer(
       {
